@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/14 21:26:44 by jobject           #+#    #+#             */
-/*   Updated: 2022/01/26 21:47:51 by jobject          ###   ########.fr       */
+/*   Updated: 2022/01/27 11:49:17 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,6 +212,7 @@ namespace ft {
 				ft::swap(capacity, other.capacity);
 			}
     };
+	
 	template<class T, class Allocator>
 	bool operator==(const ft::Vector<T, Allocator> & lhs, const ft::Vector<T, Allocator> & rhs) {
 		if (lhs.size() == rhs.size()) {
@@ -225,6 +226,27 @@ namespace ft {
 	
 	template<class T, class Allocator>
 	bool operator!=(const ft::Vector<T, Allocator> & lhs, const ft::Vector<T, Allocator> & rhs) { return !(lhs == rhs); }
+	
+	template<class T, class Allocator>
+	bool operator<(const ft::Vector<T, Allocator> & lhs, const ft::Vector<T, Allocator> & rhs) {
+		int size = lhs.size() > rhs.size() ? rhs.size() : lhs.size();
+		for (int i = 0; i < size; i++)
+			if (rhs[i] != lsh[i])
+				return lhs[i] < rhs[i];
+		return lhs.size() < rhs.size();
+	}
+
+	template<class T, class Allocator>
+	bool operator<=(const ft::Vector<T, Allocator> & lhs, const ft::Vector<T, Allocator> & rhs) {return lhs == rhs || lhs < rhs; }
+
+	template<class T, class Allocator>
+	bool operator>(const ft::Vector<T, Allocator> & lhs, const ft::Vector<T, Allocator> & rhs)	{return !(lhs <= rhs); }
+
+	template<class T, class Allocator>
+	bool operator>=(const ft::Vector<T, Allocator> & lhs, const ft::Vector<T, Allocator> & rhs)	{return !(lhs < rhs); }
+
+	template<class T, class Allocator>
+	void swap(ft::Vector<T, Allocator> & lhs, ft::Vector<T, Allocator> & rhs) { lhs.swap(rhs); }
 }
 
 #endif

@@ -3,6 +3,8 @@ NAME = ft_containers
 SRCS =	main.cpp \
 
 INC	= 	Vector.hpp \
+		VectorIterator.hpp \
+		Stack.hpp \
 
 OBJS = $(SRCS:.cpp=.o)
 OBJS_DIR = .obj
