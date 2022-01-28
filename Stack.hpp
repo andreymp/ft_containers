@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/27 15:34:25 by jobject           #+#    #+#             */
-/*   Updated: 2022/01/27 16:10:25 by jobject          ###   ########.fr       */
+/*   Updated: 2022/01/28 21:04:25 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,11 @@ namespace ft {
 	template<class T, class Container = ft::Vector<T> >
 	class Stack {
 		public:
-			typedef Container					container_type;
-			typedef Container::value_type		value_type;
-			typedef Container::size_type		size_type;
-			typedef Container::reference		reference;
-			typedef Container::const_reference	const_reference;
+			typedef Container						container_type;
+			typedef typename Container::value_type		value_type;
+			typedef typename Container::size_type		size_type;
+			typedef typename Container::reference		reference;
+			typedef typename Container::const_reference	const_reference;
 		protected:
 			container_type	container;
 		public:
@@ -38,7 +38,7 @@ namespace ft {
 			const_reference top() const {return container.front(); }
 			bool empty() const {return container.empty(); }
 			size_type size() const {return container.size(); }
-			void push(const_reference value) { container.push_back(); }
+			void push(const_reference value) { container.push_back(value); }
 			void pop() { container.pop_back(); }
 	};
 
