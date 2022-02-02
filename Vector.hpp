@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/14 21:26:44 by jobject           #+#    #+#             */
-/*   Updated: 2022/01/28 18:58:02 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/02 21:24:25 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,33 +41,33 @@ namespace ft {
 			pointer			ptr;
 			void ft_realloc(size_type new_capacity) {
 				pointer	tmp = alloc.allocate(new_capacity);
-				for (int i=0; i < _size; i++)
+				for (int i = 0 ; i < _size; i++)
 					tmp[i] = ptr[i];
 				alloc.deallocate(ptr, _capacity);
 				_capacity = new_capacity;
 				ptr = tmp;
 			}
         public:
-            Vector() : _capacity(0), _size(0), alloc(allocator_type()) { ptr = alloc.allocate(0); }
-			Vector(const allocator_type & _alloc) : _capacity(0), _size(0), alloc(_alloc) { ptr = alloc.allocate(0); }
+            Vector() : alloc(allocator_type()), _capacity(20), _size(0), ptr(nullptr) { ptr = alloc.allocate(20); }
+			Vector(const allocator_type & _alloc) : alloc(_alloc), _capacity(20), _size(0), ptr(nullptr)  { ptr = alloc.allocate(20); }
 			explicit Vector(size_type count, const_reference value = value_type(),
-				const allocator_type & _alloc = allocator_type()) : alloc(_alloc), _capacity(count), _size(0) {
-					ptr = alloc.allocate(_size);
+				const allocator_type & _alloc = allocator_type()) : alloc(_alloc), _capacity(count), _size(0), ptr(nullptr) {
+					ptr = alloc.allocate(count);
 					for (int i = 0; i < _size; i++)
 						ptr[i] = value;
 			}
-			explicit Vector(size_type count) : alloc(allocator_type()), _capacity(count), _size(0) { ptr = alloc.allocate(count); }
+			explicit Vector(size_type count) : alloc(allocator_type()), _capacity(count), _size(0), ptr(nullptr) { ptr = alloc.allocate(count); }
+			Vector(const Vector & other) { *this = other; }
+			~Vector() { alloc.deallocate(ptr, _capacity); }
 			template<class InputIt>
 			Vector(InputIt first, InputIt last, const allocator_type & _alloc = allocator_type()) :
-				alloc(_alloc), _capacity(0), _size(0) {
-				for (InputIt tmp = first; tmp != last; ++_size, ++tmp);
-				_capacity = _size;
-				ptr = alloc.allocate(_capacity);
-				for (int i = 0; i < _size && first != last; ++first, ++i)
-					ptr[i] = first;
+				alloc(_alloc), _capacity(20), _size(0), ptr(nullptr) {
+				for (InputIt it = first, i = 0; it != last; ++it, ++i, ++_size) {
+					if (_size == _capacity)
+						ft_realloc(_capacity * 2);
+					*(ptr + i) = *it;
+				}
 			}
-			Vector(const Vector & other) : Vector() { *this = other; }
-			~Vector() { alloc.deallocate(ptr, _capacity); }
 			Vector & operator=(const Vector & other) {
 				if (this != &other) {
 					if (ptr)
@@ -83,22 +83,14 @@ namespace ft {
 			}
 			void assign(size_type count, const_reference value) {
 				if (ptr)
-					alloc.dealocate(ptr, _capacity);
-				_size = _capacity = count;
-				ptr = alloc.allocate(_capacity);
-				for (int i = 0; i < _size; i++)
-					ptr[i] = value;
+					alloc.deallocate(ptr, _capacity);
+				insert(begin(), count, value);
 			}
 			template<class InputIt>
 			void assign(InputIt first, InputIt last) {
 				if (ptr)
-					alloc.dealocate(ptr, _capacity);
-				_size = _capacity = 0;
-				for (InputIt tmp = first; tmp != last; ++_size, ++tmp);
-				_capacity = _size;
-				ptr = alloc.allocate(_capacity);
-				for (size_type i = 0; i < _size && first != last; ++first, ++i)
-					ptr[i] = first;
+					alloc.deallocate(ptr, _capacity);
+				insert(begin(), first, last);
 			}
 			allocator_type get_allocator() const { return alloc; }
 			reference at(size_type pos) {
@@ -128,7 +120,7 @@ namespace ft {
 			reverse_iterator rend() { return reverse_iterator(ptr - 1); }
 			const_reverse_iterator rend() const { return const_reverse_iterator(ptr - 1); }
 			bool empty() const {return !_size; }
-			size_type _sizesize() const { return _size; }
+			size_type size() const { return _size; }
 			size_type max_size() const { return std::numeric_limits<size_type>::max() / sizeof(size_type); }
 			size_type capacity() const { return _capacity; }
 			void reserve(size_type new_cap) {
@@ -139,7 +131,8 @@ namespace ft {
 			}
 			void clear() { erase(begin(), end()); }
 			iterator insert(iterator pos, const_reference value) {
-				size_type i = pos - begin();
+				size_type i = 0;
+				for (iterator it = begin(); it != end() && it != pos; it++, i++);
 				if (_size == _capacity)
 					ft_realloc(_capacity * 2);
 				if (i < _size) {
@@ -162,12 +155,13 @@ namespace ft {
 			template<class InputIt>
 			void insert(iterator pos, InputIt first, InputIt last) {
 				while (first != last) {
-					pos = insert(pos, *first);
+					pos = insert(pos, &(*first)) + 1;
 					++first;
 				}
 			}
 			iterator erase(iterator pos) {
-				size_type i = pos - begin();
+				size_type i = 0;
+				for (iterator it = begin(); it != end() && it != pos; it++, i++);
 				if (i > _size - 1)
 					return end();
 				for (int j = i; j < _size; j++)
@@ -197,7 +191,7 @@ namespace ft {
 					for (size_type tmp = _size; tmp != count; tmp++)
 						push_back(0);
 			}
-			void resize(size_type count, value_type value = value_type()) {
+			void resize(size_type count, value_type value = 0) {
 				if (count < _size)
 					for (size_type tmp = _size; tmp != count; tmp--)
 						pop_back();
@@ -216,7 +210,7 @@ namespace ft {
 	template<class T, class Allocator>
 	bool operator==(const ft::Vector<T, Allocator> & lhs, const ft::Vector<T, Allocator> & rhs) {
 		if (lhs.size() == rhs.size()) {
-			int i = 0;
+			size_t i = 0;
 			for (; i < lhs.size() && lhs[i] == rhs[i]; i++);
 			if (i == lhs.size())
 				return true;

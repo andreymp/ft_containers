@@ -1,10 +1,15 @@
 NAME = ft_containers
 
-SRCS =	main.cpp \
+SRCS =	tests/main.cpp \
+		tests/vector.cpp \
 
 INC	= 	Vector.hpp \
 		VectorIterator.hpp \
 		Stack.hpp \
+		MapIterator.hpp \
+		Map.hpp \
+		utils.hpp \
+		test.hpp \
 
 OBJS = $(SRCS:.cpp=.o)
 OBJS_DIR = .obj
@@ -17,6 +22,7 @@ RM	= rm -rf
 
 $(OBJS_DIR)/%.o:		%.cpp
 						@mkdir -p $(OBJS_DIR)
+						@mkdir -p $(OBJS_DIR)/tests
 						$(CPP) $(CPP_FLAGS) -c $< -o $@
 
 all:			$(NAME)

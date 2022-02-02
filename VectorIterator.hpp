@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/20 15:01:47 by jobject           #+#    #+#             */
-/*   Updated: 2022/01/28 18:45:42 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/02 21:01:06 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,8 @@ namespace ft {
             bool operator<=(const VectorIterator & other) const {return p <= other.p;}
             bool operator==(const VectorIterator & other) const {return p == other.p;}
             bool operator!=(const VectorIterator & other) const {return p != other.p;}
-            reference operator*() {return *p;}
-            pointer operator->() {return p;}
+            reference operator*() {return *this->p;}
+            pointer operator->() {return &p;}
             VectorIterator & operator++() {p++; return *this;}
             VectorIterator & operator--() {p--; return *this;}
             VectorIterator operator++(int) {
@@ -73,6 +73,7 @@ namespace ft {
                 else
                     while (n++)
                         (*this)++;
+				return *this;
             }
             VectorIterator & operator-=(int n) {
                 if (n >= 0)
@@ -81,6 +82,7 @@ namespace ft {
                 else
                     while (n++)
                         (*this)--;
+				return *this;
             }
             reference operator[](int i) {return *(*this + i);}
     };
@@ -108,73 +110,76 @@ namespace ft {
 
     template<class T>
     class ReverseVectorIterator : public VectorIterator<T> {
-		typedef typename VectorIterator<T>::reference     		reference;
-        typedef typename VectorIterator<T>::pointer       		pointer;   
-        typedef const typename VectorIterator<T>::reference     const_reference;
-        typedef const typename VectorIterator<T>::pointer       const_pointer;   
-        ReverseVectorIterator() {}
-        ~ReverseVectorIterator() {}
-        ReverseVectorIterator(pointer _p) : VectorIterator<T>(_p) {}
-        ReverseVectorIterator(const ReverseVectorIterator & other) {*this = other;}
-        ReverseVectorIterator & operator=(const ReverseVectorIterator & other) {
-            if (this != &other)
-                this->p = other.p;
-            return *this;
-        }
-        bool operator>(const ReverseVectorIterator & other) const {return this->p > other.p;}
-        bool operator>=(const ReverseVectorIterator & other) const {return this->p >= other.p;}
-        bool operator<(const ReverseVectorIterator & other) const {return this->p < other.p;}
-        bool operator<=(const ReverseVectorIterator & other) const {return this->p <= other.p;}
-        bool operator==(const ReverseVectorIterator & other) const {return this->p == other.p;}
-        bool operator!=(const ReverseVectorIterator & other) const {return this->p != other.p;}
-        ReverseVectorIterator & operator++() {this->p--; return *this;}
-        ReverseVectorIterator & operator--() {this->p++; return *this;}
-        ReverseVectorIterator operator++(int) {
-            ReverseVectorIterator  res(*this);
-            *this = operator--();
-            return res;
-        }
-        ReverseVectorIterator operator--(int) {
-            ReverseVectorIterator res(*this);
+		public:
+			typedef typename VectorIterator<T>::reference     		reference;
+			typedef typename VectorIterator<T>::pointer       		pointer;   
+			typedef const typename VectorIterator<T>::reference     const_reference;
+			typedef const typename VectorIterator<T>::pointer       const_pointer;   
+			ReverseVectorIterator() {}
+			~ReverseVectorIterator() {}
+			ReverseVectorIterator(pointer _p) : VectorIterator<T>(_p) {}
+			ReverseVectorIterator(const ReverseVectorIterator & other) {*this = other;}
+			ReverseVectorIterator & operator=(const ReverseVectorIterator & other) {
+				if (this != &other)
+					this->p = other.p;
+				return *this;
+			}
+			bool operator>(const ReverseVectorIterator & other) const {return this->p > other.p;}
+			bool operator>=(const ReverseVectorIterator & other) const {return this->p >= other.p;}
+			bool operator<(const ReverseVectorIterator & other) const {return this->p < other.p;}
+			bool operator<=(const ReverseVectorIterator & other) const {return this->p <= other.p;}
+			bool operator==(const ReverseVectorIterator & other) const {return this->p == other.p;}
+			bool operator!=(const ReverseVectorIterator & other) const {return this->p != other.p;}
+			ReverseVectorIterator & operator++() {this->p--; return *this;}
+			ReverseVectorIterator & operator--() {this->p++; return *this;}
+			ReverseVectorIterator operator++(int) {
+				ReverseVectorIterator  res(*this);
+				*this = operator--();
+				return res;
+			}
+			ReverseVectorIterator operator--(int) {
+				ReverseVectorIterator res(*this);
 
-            *this = operator++();
-            return res;
-        }
-        ReverseVectorIterator operator+(int n) {
-            ReverseVectorIterator temp(*this);
+				*this = operator++();
+				return res;
+			}
+			ReverseVectorIterator operator+(int n) {
+				ReverseVectorIterator temp(*this);
 
-            temp -= n;
-            return temp;
-        }
-        ReverseVectorIterator operator-(int n) {
-            ReverseVectorIterator temp(*this);
+				temp -= n;
+				return temp;
+			}
+			ReverseVectorIterator operator-(int n) {
+				ReverseVectorIterator temp(*this);
 
-            temp += n;
-            return temp;
-        }
-        ReverseVectorIterator & operator+=(int n) {
-            if (n >= 0)
-                while (n--)
-                    (*this)--;
-            else
-                while (n++)
-                    (*this)--;
-        }
-        ReverseVectorIterator & operator-=(int n) {
-            if (n >= 0)
-                while (n--)
-                    (*this)++;
-            else
-                while (n++)
-                    (*this)++;
-        }
-        reference operator[](int i) {return *(*this - i);}
+				temp += n;
+				return temp;
+			}
+			ReverseVectorIterator & operator+=(int n) {
+				if (n >= 0)
+					while (n--)
+						(*this)--;
+				else
+					while (n++)
+						(*this)--;
+				return *this;
+			}
+			ReverseVectorIterator & operator-=(int n) {
+				if (n >= 0)
+					while (n--)
+						(*this)++;
+				else
+					while (n++)
+						(*this)++;
+				return *this;
+			}
+			reference operator[](int i) {return *(*this - i);}
     };
 
     template<class T>
     class ConstReverseVectorIterator : public ReverseVectorIterator<T> {
         public:
-           typedef typename VectorIterator<T>::reference     		reference;
+          	typedef typename VectorIterator<T>::reference     		reference;
         	typedef typename VectorIterator<T>::pointer       		pointer;   
         	typedef const typename VectorIterator<T>::reference     const_reference;
         	typedef const typename VectorIterator<T>::pointer       const_pointer;   
