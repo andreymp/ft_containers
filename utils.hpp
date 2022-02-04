@@ -6,20 +6,24 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/26 21:37:27 by jobject           #+#    #+#             */
-/*   Updated: 2022/01/28 18:28:19 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/04 20:13:01 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef UTILS_HPP
 # define UTILS_HPP
 
+# include "Vector.hpp"
+
 namespace ft {
-	template<typename T>
-	void swap(T & a, T & b) {
-		T tmp = a;
-		a = b;
-		b = tmp;
-	}
+
+	template<bool B, class T = void>
+	struct enable_if {};
+	
+	template<class T>
+	struct enable_if<true, T> {
+		typedef T	type; 
+	};
 	
 	template<class T>
 	struct less {

@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/20 15:01:47 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/03 17:00:59 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/04 17:08:46 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,10 @@ namespace ft {
 	template<class T>
     class VectorIterator {
         public:
-            typedef T   value_type;
-            typedef T&  reference;
-            typedef T*  pointer;
+            typedef T   			value_type;
+            typedef T&  			reference;
+            typedef T*  			pointer;
+			typedef std::ptrdiff_t	difference_type;
         protected:
             pointer p;
         public:
@@ -146,13 +147,13 @@ namespace ft {
 			ReverseVectorIterator operator+(int n) {
 				ReverseVectorIterator temp(*this);
 
-				temp -= n;
+				temp += n;
 				return temp;
 			}
 			ReverseVectorIterator operator-(int n) {
 				ReverseVectorIterator temp(*this);
 
-				temp += n;
+				temp -= n;
 				return temp;
 			}
 			ReverseVectorIterator & operator+=(int n) {

@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/27 15:34:25 by jobject           #+#    #+#             */
-/*   Updated: 2022/01/28 21:04:25 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/04 18:09:57 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,23 +19,36 @@ namespace ft {
 	template<class T, class Container = ft::Vector<T> >
 	class Stack {
 		public:
-			typedef Container						container_type;
+			typedef Container							container_type;
 			typedef typename Container::value_type		value_type;
 			typedef typename Container::size_type		size_type;
 			typedef typename Container::reference		reference;
 			typedef typename Container::const_reference	const_reference;
 		protected:
 			container_type	container;
+		private:
+			template<class T1, class C1>
+			friend bool operator==(const Stack<T1,C1> & lhs, const Stack<T1,C1> & rhs);
+			template<class T1, class C1>
+			friend bool operator!=(const Stack<T1,C1> & lhs, const Stack<T1,C1> & rhs);
+			template<class T1, class C1>
+			friend bool operator<(const Stack<T1,C1> & lhs, const Stack<T1,C1> & rhs);
+			template<class T1, class C1>
+			friend bool operator<=(const Stack<T1,C1> & lhs, const Stack<T1,C1> & rhs);
+			template<class T1, class C1>
+			friend bool operator>(const Stack<T1,C1> & lhs, const Stack<T1,C1> & rhs);
+			template<class T1, class C1>
+			friend bool operator>=(const Stack<T1,C1> & lhs, const Stack<T1,C1> & rhs);
 		public:
-			explicit Stack(const container_type & cont = container_type()) : container(cont) {}
+			explicit Stack(const container_type & c = container_type()) : container(c) {}
 			~Stack() {}
 			Stack & operator=(const Stack & other) {
 				if (this != &other)
 					container = other.container;
 				return *this;
 			}
-			reference top() {return container.front(); }
-			const_reference top() const {return container.front(); }
+			reference top() {return container.back(); }
+			const_reference top() const {return container.back(); }
 			bool empty() const {return container.empty(); }
 			size_type size() const {return container.size(); }
 			void push(const_reference value) { container.push_back(value); }

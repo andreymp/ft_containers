@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/14 21:26:44 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/03 21:13:18 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/04 21:35:08 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,18 @@ namespace ft {
     template<class T,class Allocator = std::allocator<T> >
     class Vector {
         public:
-            typedef T                                   		value_type;
-            typedef Allocator                           		allocator_type;
-            typedef std::size_t                         		size_type;
-            typedef std::ptrdiff_t                      		difference_type;
-            typedef T&                                 			reference;
-            typedef const T&                            		const_reference;
-            typedef T*                                  		pointer;
-            typedef const T*                            		const_pointer;
-            typedef class ft::VectorIterator<T>			    	iterator;
-            typedef class ft::ConstVectorIterator<T>         	const_iterator;
-            typedef class ft::ReverseVectorIterator<T>       	reverse_iterator;
-            typedef class ft::ConstReverseVectorIterator<T>  	const_reverse_iterator;
+            typedef T                                 					value_type;
+            typedef Allocator                         					allocator_type;
+            typedef std::size_t                       					size_type;
+            typedef T&                            						reference;
+            typedef const T&                          					const_reference;
+            typedef T*                                					pointer;
+            typedef const T*                          					const_pointer;
+            typedef class ft::VectorIterator<T>			  				iterator;
+            typedef class ft::ConstVectorIterator<T>      				const_iterator;
+            typedef class ft::ReverseVectorIterator<T>      			reverse_iterator;
+            typedef class ft::ConstReverseVectorIterator<T>  			const_reverse_iterator;
+			typedef typename ft::VectorIterator<T>::difference_type		difference_type;
         private:
             allocator_type  alloc;
             size_type       _capacity;
@@ -65,46 +65,59 @@ namespace ft {
 					for (size_type i = 0; i < _size; i++)
 						alloc.construct(ptr + i, value);
 			}
-			Vector(const Vector & other) { *this = other; }
+			Vector(const Vector & other) : alloc(allocator_type()), _capacity(0), _size(0), ptr(nullptr) { *this = other; }
 			~Vector() { delVector(); }
 			template<typename InputIt>
-			Vector(InputIt first, InputIt last, const allocator_type & _alloc = allocator_type(), typename std::enable_if<!std::numeric_limits<InputIt>::is_specialized>::type * = 0) :
+			Vector(InputIt first, InputIt last, const allocator_type & _alloc = allocator_type(), typename enable_if<!std::numeric_limits<InputIt>::is_specialized>::type * = 0) :
 				alloc(_alloc), _capacity(20), _size(0) {
 				if (first > last)
 					throw std::length_error("vector");
-				int i = 0;
 				ptr = alloc.allocate(_capacity);
-				for (InputIt it = first; it != last; ++it, ++i, ++_size) {
-					if (_size == _capacity)
-						ft_realloc(_capacity * 2);
-					alloc.construct(ptr + i, *it);
-				}
+				assign(first, last);
 			}
 			Vector & operator=(const Vector & other) {
 				if (this != &other) {
-					// delVector();
-					alloc = other.alloc;
-					_capacity = other._capacity;
+					for (size_type i = 0; i < _size; i++)
+						alloc.destroy(ptr + i);
 					_size = other._size;
-					ptr = alloc.allocate(_capacity);
+					if (_size > _capacity) {
+						if (_capacity)
+							alloc.deallocate(ptr, _capacity);
+						_capacity = _size;
+						ptr = alloc.allocate(_capacity);
+					}
 					for (int i = 0; i < _size; i++)
 						alloc.construct(ptr + i, other[i]);
 				}
 				return *this;
 			}
 			void assign(size_type count, const_reference value) {
-				delVector();
-				ptr = alloc.allocate(count);
-				_size = _capacity = count;
-				for (int i = 0; i < count; i++)
+				for (size_type i = 0; i < _size; i++)
+					alloc.destroy(ptr + i);
+				if (_capacity < count) {
+					alloc.deallocate(ptr, _capacity);
+					_capacity = count;
+					ptr = alloc.allocate(_capacity);
+				}
+				_size = count;
+				for (int i = 0; i < count; i++) {
 					alloc.construct(ptr + i, value);
+				}
 			}
 			template<class InputIt>
-			void assign(InputIt first, InputIt last, typename std::enable_if<!std::numeric_limits<InputIt>::is_specialized>::type * = 0) {
-				delVector();
-				for (InputIt it = first; it != last; ++it, ++_capacity);
-				ptr = alloc.allocate(_capacity);
-				_size = _capacity;
+			void assign(InputIt first, InputIt last, typename enable_if<!std::numeric_limits<InputIt>::is_specialized>::type * = 0) {
+				if (first > last)
+					throw std::length_error("vector");
+				for (size_type i = 0; i < _size; i++)
+					alloc.destroy(ptr + i);
+				int count = 0;
+				for (InputIt it = first; it != last; ++it, ++count);
+				if (_capacity < count) {
+					alloc.deallocate(ptr, _capacity);
+					_capacity = count;
+					ptr = alloc.allocate(_capacity);
+				}
+				_size = count;
 				for (int i = 0; first != last; ++first, ++i)
 					alloc.construct(ptr + i, *first);
 			}
@@ -145,67 +158,60 @@ namespace ft {
 				if (new_cap > _capacity)
 					ft_realloc(new_cap);
 			}
-			void clear() { erase(begin(), end()); }
+			void clear() { while (_size) pop_back(); }
 			iterator insert(iterator pos, const_reference value) {
-				size_type i = 0;
-				iterator it;
-				for (it = begin(); it != end() && it != pos; ++it, i++);
-				if (_size + 1 > _capacity)
-					ft_realloc(_capacity * 2);
-				if (it != end()) {
-					++_size;
-					for (size_type j = _size; j != i; j--) {
-						alloc.destroy(ptr + j);
-						alloc.construct(ptr + j, ptr[j - 1]);
-					}
-					alloc.destroy(ptr + i);
-					alloc.construct(ptr + i, value); }
-				// } else {
-				// 	while (i >= _capacity)
-				// 		ft_realloc(_capacity * 2);
-				// 	ptr[i] = value;
-				// 	_size = i + 1;
-				// }
-				return iterator(ptr + i);
+				// TO DO
 			}
 			void insert(iterator pos, size_type count, const_reference value) {
-				while (count--)
-					pos = insert(pos, value);
+				// TO DO
 			}
 			template<class InputIt>
-			void insert(iterator pos, InputIt first, InputIt last, typename std::enable_if<!std::numeric_limits<InputIt>::is_specialized>::type * = 0) {
-				while (first != last) {
-					pos = insert(pos, *first) + 1;
-					++first;
-				}
+			void insert(iterator pos, InputIt first, InputIt last, typename enable_if<!std::numeric_limits<InputIt>::is_specialized>::type * = 0) {
+				// TO DO
 			}
 			iterator erase(iterator pos) {
 				size_type i = 0;
-				iterator it;
-				for (it = begin(); it != end() && it != pos; ++it, i++);
+				iterator it = begin();
+				for (; it != end() && it != pos; ++it, ++i);
 				if (it == end()) {
 					pop_back();
 					return iterator(ptr + _size);
 				}
-				for (int j = i; j < _size - 1; j++)
-					ptr[j] = ptr[j + 1];
+				for (int j = i; j < _size - 1; j++) {
+					alloc.destroy(ptr + j);
+					alloc.construct(ptr + j, ptr[j + 1]);
+				}
 				--_size;
 				return iterator(ptr + i);
 			}
 			iterator erase(iterator first, iterator last) {
-				for (; first != last; last--)
-					erase(first);
-				return first;
+				if (first > last)
+					throw std::length_error("vector");
+				size_type indexOfFirst = 0;
+				size_type indexOfLast = _size;
+				for (iterator it = begin(); it != first; ++it, ++indexOfFirst);
+				for (iterator it = end(); it != last; --it, --indexOfLast);
+				if (last == end()) {
+					for (; indexOfLast != indexOfFirst; indexOfLast--)
+						pop_back();
+					return end();
+				}
+				size_type range = indexOfLast - indexOfFirst;
+				for (int i = indexOfFirst; indexOfLast < _size; ++i) {
+					alloc.destroy(ptr + i);
+					alloc.construct(ptr + i, ptr[indexOfLast++]);
+				}
+				_size -= range;
+				return iterator(ptr + indexOfFirst);
 			}
 			void push_back(const_reference value) {
-				if (_size + 1 > _capacity)
-					reserve(_capacity ? _capacity * 2 : 20);
-				alloc.construct(ptr + _size, value);
-				++_size;
+				if (_size == _capacity)
+					reserve(_capacity ? _capacity * 2 : 1);
+				alloc.construct(ptr + _size++, value);
 			}
 			void pop_back() {
 				if (!empty())
-					--_size;
+					alloc.destroy(ptr + _size--);
 			}
 			void resize(size_type count, value_type value = value_type()) {
 				if (count < _size)
@@ -216,10 +222,10 @@ namespace ft {
 						push_back(value);
 			}
 			void swap(Vector & other) {
-				ft::swap(alloc, other.alloc);
-				ft::swap(ptr, other.ptr);
-				ft::swap(_size, other._size);
-				ft::swap(_capacity, other._capacity);
+				std::swap(ptr, other.ptr);
+				std::swap(_capacity, other._capacity);
+				std::swap(_size, other._size);
+				std::swap(alloc, other.alloc);
 			}
     };
 	
@@ -254,7 +260,9 @@ namespace ft {
 
 	template<class T, class Allocator>
 	bool operator>=(const ft::Vector<T, Allocator> & lhs, const ft::Vector<T, Allocator> & rhs)	{return !(lhs < rhs); }
+}
 
+namespace std {
 	template<class T, class Allocator>
 	void swap(ft::Vector<T, Allocator> & lhs, ft::Vector<T, Allocator> & rhs) { lhs.swap(rhs); }
 }
