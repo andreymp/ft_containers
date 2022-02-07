@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/14 21:26:44 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/04 21:35:08 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/07 21:01:43 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include <memory>
 # include "utils.hpp"
 # include "VectorIterator.hpp"
+
+# include <iostream>
 
 namespace ft {
     template<class T,class Allocator = std::allocator<T> >
@@ -58,7 +60,7 @@ namespace ft {
 				}
 			}
         public:
-			explicit Vector(const allocator_type & _alloc = allocator_type()) : alloc(_alloc), _capacity(20), _size(0)  { ptr = alloc.allocate(20); }
+			explicit Vector(const allocator_type & _alloc = allocator_type()) : alloc(_alloc), _capacity(0), _size(0)  {}
 			explicit Vector(size_type count, const_reference value = value_type(),
 				const allocator_type & _alloc = allocator_type()) : alloc(_alloc), _capacity(count), _size(count) {
 					ptr = alloc.allocate(count);
@@ -92,6 +94,8 @@ namespace ft {
 				return *this;
 			}
 			void assign(size_type count, const_reference value) {
+				if (!_capacity)
+					ptr = alloc.allocate(count);
 				for (size_type i = 0; i < _size; i++)
 					alloc.destroy(ptr + i);
 				if (_capacity < count) {
@@ -160,14 +164,77 @@ namespace ft {
 			}
 			void clear() { while (_size) pop_back(); }
 			iterator insert(iterator pos, const_reference value) {
-				// TO DO
+				size_type indexToInsert = 0;
+				for (iterator it = begin(); it != pos; ++it, ++indexToInsert);
+				if (!_capacity)
+					reserve(1);
+				if (_size == _capacity)
+					reserve(_capacity * 2);
+				for (size_type i = _size; i > indexToInsert; --i) {
+					alloc.destroy(ptr + i);
+					alloc.construct(ptr + i, ptr[i - 1]);
+				}
+				alloc.destroy(ptr + indexToInsert);
+				alloc.construct(ptr + indexToInsert, value);
+				++_size;
+				return iterator(ptr + indexToInsert);
 			}
 			void insert(iterator pos, size_type count, const_reference value) {
-				// TO DO
+				size_type indexToInsert = 0;
+				for (iterator it = begin(); it != pos; ++it, ++indexToInsert);
+				if (!_capacity)
+					reserve(count);
+				if (_size + count > _capacity)
+					reserve(_size + count > _capacity * 2 ? _size + count : _capacity * 2);
+				for (size_type i = _size; i > indexToInsert; --i) {
+					alloc.destroy(ptr + i + count - 1);
+					alloc.construct(ptr + i + count - 1, ptr[i - 1]);
+				}
+				for (size_type i = 0; i < count; ++i) {
+					alloc.destroy(ptr + indexToInsert);
+					alloc.construct(ptr + indexToInsert++, value);
+				}
+				_size += count;
 			}
 			template<class InputIt>
 			void insert(iterator pos, InputIt first, InputIt last, typename enable_if<!std::numeric_limits<InputIt>::is_specialized>::type * = 0) {
-				// TO DO
+				size_type range = 0;
+				size_type indexToInsert = 0;
+				for (InputIt it = first; it != last; ++it, ++range);
+				for (iterator it = begin(); it != pos; ++it, ++indexToInsert);
+				if (_size + range > _capacity) {
+					size_type newCap = _size + range > _capacity * 2 ? _size + range : _capacity * 2;
+					pointer newArr = alloc.allocate(newCap);
+					for (size_type i = 0; i < indexToInsert; i++)
+						alloc.construct(newArr + i, ptr[i]);
+					try {
+						for (size_type i = 0; i < range; ++i, ++first)
+							alloc.construct(newArr + indexToInsert + i, *first);
+					} catch (...) {
+						for (size_type i = 0; i < indexToInsert + range; ++i)
+							alloc.destroy(newArr + i);
+						alloc.deallocate(newArr, newCap);
+						throw "vector";
+					}
+					for (size_type i = indexToInsert; i < _size; ++i)
+						alloc.construct(newArr + range + i, ptr[i]);
+					for (size_type i = 0; i < _size; ++i)
+						alloc.destroy(ptr + i);
+					alloc.deallocate(ptr, _capacity);
+					_size += range;
+					_capacity = newCap;
+					ptr = newArr;
+				} else {
+					for (size_type i = _size; i > indexToInsert; --i) {
+						alloc.destroy(ptr + i + range - 1);
+						alloc.construct(ptr + i + range - 1, ptr[i - 1]);
+					}
+					for (size_type i = indexToInsert; i != indexToInsert + range; ++i) {
+						alloc.construct(ptr + i, *first);
+						++first;
+					}
+					_size += range;
+				}
 			}
 			iterator erase(iterator pos) {
 				size_type i = 0;

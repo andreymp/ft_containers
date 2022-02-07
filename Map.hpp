@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/27 16:09:54 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/02 12:27:43 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/07 16:12:11 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ namespace ft {
 			explicit Map(const key_compare & comp, const allocator_type & alloc = allocator_type()) : 
 				alloc(alloc), comp(comp), tree(nullptr), ptr(nullptr), _size(0) {}
 			template<class InputIt>
-			Map(InputIt first, InputIt last, const key_compare & comp = key_compare(), const allocator_type & alloc = allocator_type()) :
+			Map(InputIt first, InputIt last, const key_compare & comp = key_compare(), const allocator_type & alloc = allocator_type(), typename enable_if<!std::numeric_limits<InputIt>::is_specialized>::type * = 0) :
 				alloc(alloc), comp(comp) {
 				_size = 0;
 				tree = newNode(*first);
@@ -281,11 +281,11 @@ namespace ft {
 				}
 			}
 			void swap(Map & other) {
-				ft::swap(alloc, other.alloc);
-				ft::swap(comp, other.comp);
-				ft::swap(_size, other._size);
-				ft::swap(ptr, other.ptr);
-				ft::swap(tree, other.tree);
+				std::swap(alloc, other.alloc);
+				std::swap(comp, other.comp);
+				std::swap(_size, other._size);
+				std::swap(ptr, other.ptr);
+				std::swap(tree, other.tree);
 			}
 			size_type count(const key_type & key) const {
 				size_type res = 0;;
@@ -335,9 +335,6 @@ namespace ft {
 			key_compare key_comp() const { return comp; }
 			typename ft::Map<K, V>::value_compare value_comp() const { return value_compare(comp); }
 	};
-
-	template<class K, class V, class Compare, class Allocator>
-	void swap(ft::Map<K, V, Compare, Allocator> & lhs, ft::Map<K, V, Compare, Allocator> & rhs) { lhs.swap(rhs); }
 	
 	template<class K, class V, class Compare, class Allocator>
 	bool operator==(const ft::Map<K, V, Compare, Allocator> & lhs, const ft::Map<K, V, Compare, Allocator> & rhs) {
@@ -369,6 +366,11 @@ namespace ft {
 	bool operator>(const ft::Map<K, V, Compare, Allocator> & lhs, const ft::Map<K, V, Compare, Allocator> & rhs) { return !(lhs <= rhs); }
 	template<class K, class V, class Compare, class Allocator>
 	bool operator>=(const ft::Map<K, V, Compare, Allocator> & lhs, const ft::Map<K, V, Compare, Allocator> & rhs) { return !(lhs < rhs); }
+}
+
+namespace std {
+	template<class K, class V, class Compare, class Allocator>
+	void swap(ft::Map<K, V, Compare, Allocator> & lhs, ft::Map<K, V, Compare, Allocator> & rhs) { lhs.swap(rhs); }
 }
 
 #endif
