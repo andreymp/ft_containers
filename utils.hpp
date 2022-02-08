@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/26 21:37:27 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/04 20:13:01 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/08 16:45:19 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,9 @@ namespace ft {
 		typedef T	type; 
 	};
 	
+	template <class T> struct remove_const { typedef T type; };
+	template <class T> struct remove_const<const T> { typedef T type; }
+
 	template<class T>
 	struct less {
 		typedef bool	result_type;
@@ -72,12 +75,29 @@ namespace ft {
 	template< class T1, class T2 >
 	bool operator>=(const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs) { return !(lhs < rhs); }
 
-	template<class K, class V>
+	template<class Val>
 	struct node {
-		pair<K, V>	data;
+		Val	*		data;
 		node *		parent;
 		node *		right;
 		node *		left;
+		bool		isBlack;
+		bool		isNil;
+		
+		explicit node(Val *_val = nullptr) : data(_val), parent(nullptr), right(nullptr), left(nullptr), isBlack(false),  isNil(false) {}
+		node(const node & other) { *this = other; }
+		node & operator=(const node & other) {
+			if (this != *other) {
+				data = other.data;
+				parent = other.parent;
+				right = other.right;
+				left = other.left;
+				isBlack = other.isBlack;
+				isNil = other.isNil;
+			}
+			return *this;
+		}
+		~node();
 	};
 }
 
