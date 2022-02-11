@@ -6,14 +6,12 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/26 21:37:27 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/08 16:45:19 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/11 21:28:19 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef UTILS_HPP
 # define UTILS_HPP
-
-# include "Vector.hpp"
 
 namespace ft {
 
@@ -26,7 +24,7 @@ namespace ft {
 	};
 	
 	template <class T> struct remove_const { typedef T type; };
-	template <class T> struct remove_const<const T> { typedef T type; }
+	template <class T> struct remove_const<const T> { typedef T type; };
 
 	template<class T>
 	struct less {
@@ -42,10 +40,11 @@ namespace ft {
 		typedef V	second_type;
 		first_type first;
 		second_type second;
-		pair() {}
+		pair() : first(), second() {}
 		pair(const first_type & x, const second_type & y) : first(x), second(y) {}
 		template<class U1, class U2>
-		pair(const pair<U1, U2> & other) { *this = other; }
+		pair(const pair<U1, U2> & other) : first(other.first), second(other.second) {}
+		pair(const pair & other) : first(other.first), second(other.second) {}
 		pair & operator=(const pair & other) {
 			if (this != &other) {
 				first = other.first;
@@ -57,7 +56,7 @@ namespace ft {
 	template<class T1, class T2>
 	ft::pair<T1, T2> make_pair(T1 t, T2 u) { return ft::pair<T1, T2>(t, u); }
 	template< class T1, class T2 >
-	bool operator==(const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs) {	return lhs.first == rhs.first && lhs.second == rhs.second; }
+	bool operator==(const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs) { return lhs.first == rhs.first && lhs.second == rhs.second; }
 	template< class T1, class T2 >
 	bool operator!=(const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs) { return !(lhs == rhs); }
 	template< class T1, class T2 >
@@ -87,7 +86,7 @@ namespace ft {
 		explicit node(Val *_val = nullptr) : data(_val), parent(nullptr), right(nullptr), left(nullptr), isBlack(false),  isNil(false) {}
 		node(const node & other) { *this = other; }
 		node & operator=(const node & other) {
-			if (this != *other) {
+			if (this != &other) {
 				data = other.data;
 				parent = other.parent;
 				right = other.right;
@@ -97,7 +96,6 @@ namespace ft {
 			}
 			return *this;
 		}
-		~node();
 	};
 }
 
