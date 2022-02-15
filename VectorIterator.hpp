@@ -6,12 +6,14 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/20 15:01:47 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/04 17:08:46 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/15 21:15:16 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VECTORITERATOR_HPP
 # define VECTORITERATOR_HPP
+
+# include "utils.hpp"
 
 namespace ft {
 	template<class T>

@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/08 15:44:54 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/11 21:58:38 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/15 20:35:50 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,8 @@ namespace ft {
 				return *this;
 			}
 			~TreeIterator() {}
-			pointer operator->() { return root->data; }
 			reference operator*() { return *(root->data); }
+			pointer operator->() { return &operator*(); }
 			node_pointer getPointer() const { return root; }
 			TreeIterator & operator++() {
 				if (root->right && !root->right->isNil)

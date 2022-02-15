@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/10 21:09:40 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/11 21:33:26 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/15 19:20:52 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,7 @@ namespace ft {
 				return end();
 			}
 			const_iterator lower_bound(const key_type & key) const {
+				iterator it = find(key);
 				for (iterator it = begin(); it != end(); ++it)
 					if (!comp(it->first, key))
 						return static_cast<const_iterator>(it);
@@ -136,8 +137,8 @@ namespace ft {
 						return static_cast<const_iterator>(it);
 				return end();
 			}
-			ft::pair<iterator,iterator> equal_range(const key_type & key) { return ft::pair<iterator, iterator>(lower_bound(key), upper_bound(key)); }
-			ft::pair<const_iterator,const_iterator> equal_range(const key_type & key) const { return ft::pair<const_iterator, const_iterator>(lower_bound(key), upper_bound(key)); }
+			pair<iterator, iterator> equal_range(const key_type & key){ return tree.equal_range(make_pair(key, mapped_type())); }
+			pair<const_iterator, const_iterator> equal_range(const key_type & key) const{ return tree.equal_range(make_pair(key, mapped_type())); }
 			allocator_type get_allocator() const { return alloc; }
 	};
 	

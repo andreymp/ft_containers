@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/08 13:10:49 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/11 22:29:29 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/15 19:42:38 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ namespace ft {
 			}
 			bool _isNil(n_p ptr) const { return ptr == nil || ptr == head; }
 			n_p maximum(n_p ptr) const {
-				while (ptr && !_isNil(ptr->right))
+				while (ptr->right && !_isNil(ptr->right))
 					ptr = ptr->right;
 				return ptr;
 			}
@@ -153,9 +153,10 @@ namespace ft {
 				root->isBlack = true;
 			}
 			void normalizeErase(n_p noda) {
+				n_p tmp;
 				while (noda != root && noda->isBlack) {
 					if (noda == noda->parent->left) {
-						n_p tmp = noda->parent->right;
+						tmp = noda->parent->right;
 						if (!tmp->isBlack) {
 							tmp->isBlack = true;
 							tmp->parent->isBlack = false;
@@ -179,7 +180,7 @@ namespace ft {
 							noda = root;
 						}
 					} else {
-						n_p tmp = noda->parent->left;
+						tmp = noda->parent->left;
 						if (!tmp->isBlack) {
 							tmp->isBlack = true;
 							tmp->parent->isBlack = false;
@@ -261,7 +262,7 @@ namespace ft {
 				} else {
 					noda->right = copyParent(other->right);
 					noda->right->parent = noda;
-					copyChildRecursive(noda->left, other->right);
+					copyChildRecursive(noda->right, other->right);
 				}
 			}
 			void move(n_p to, n_p noda) {
@@ -294,12 +295,9 @@ namespace ft {
 					allocated = 0;
 					insert(first, last);
 			}
-			RBTree(const RBTree & other) : comp(other.comp) { *this = other; }
+			RBTree(const RBTree & other) : alloc_value(other.alloc_node), alloc_node(other.alloc_node), comp(other.comp) { *this = other; }
 			RBTree & operator=(const RBTree & other) {
 				if (this != &other) {
-					alloc_node = other.alloc_node;
-					alloc_value = other.alloc_value;
-					comp = other.comp;
 					root ? clearSubTree(root) : initNH();
 					if (other.allocated) {
 						root = alloc_node.allocate(1);
@@ -360,9 +358,9 @@ namespace ft {
 				insertPrivate(noda, root);
 				ft::pair<iterator, bool> res(iterator(noda), true);
 				normalizeInsert(noda);
-				noda = maximum(root);
-				noda->right = head;
-				head->parent = noda;
+				n_p max_noda = maximum(root);
+				max_noda->right = head;
+				head->parent = max_noda;
 				++allocated;
 				return res;
 			}
@@ -424,7 +422,7 @@ namespace ft {
 					normalizeErase(tmp);
 				nil->parent = nullptr;
 				--allocated;
-				if (allocated) {
+				if (allocated > 0) {
 					tmp = allocated == 1 ? root : maximum(root);
 					tmp->right = head;
 					head->parent = tmp;
@@ -459,6 +457,32 @@ namespace ft {
 				n_p tmp = findRecursive(value, root);
 				return tmp ? iterator(tmp) : end();
 			}
+			iterator lower_bound(const value_type & key) {
+				for (iterator it = begin(); it != end(); ++it)
+					if (!comp(*it, key))
+						return it;
+				return end();
+			}
+			const_iterator lower_bound(const value_type & key) const {
+				for (iterator it = begin(); it != end(); ++it)
+					if (!comp(*it, key))
+						return static_cast<const_iterator>(it);
+				return end();
+			}
+			iterator upper_bound(const value_type & key) {
+				for (iterator it = begin(); it != end(); ++it)
+					if (comp(key, *it))
+						return it;
+				return end();
+			}
+			const_iterator upper_bound(const value_type & key) const {
+				for (iterator it = begin(); it != end(); ++it)
+					if (comp(key, *it))
+						return static_cast<const_iterator>(it);
+				return end();
+			}
+			ft::pair<iterator,iterator> equal_range(const value_type & key) { return ft::make_pair(lower_bound(key), upper_bound(key)); }
+			//ft::pair<const_iterator,const_iterator> equal_range(const value_type & key) const { return ft::pair<const_iterator, const_iterator>(lower_bound(key), upper_bound(key)); }
 			allocator_type get_allocator() const { return alloc_value; }
 	};
 }
