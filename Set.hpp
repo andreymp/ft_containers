@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/10 21:34:57 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/15 20:56:59 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/16 19:20:50 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,16 +36,18 @@ namespace ft {
 			typedef typename rb_tree::reverse_iterator							reverse_iterator;
 			typedef typename rb_tree::const_reverse_iterator					const_reverse_iterator;
 		private:
+			allocator_type alloc;
 			rb_tree tree;
 		public:
-			explicit Set(const key_compare & _comp = key_compare(), const allocator_type & _alloc = allocator_type()) : tree(rb_tree(_comp, _alloc)) {}
+			explicit Set(const key_compare & _comp = key_compare(), const allocator_type & _alloc = allocator_type()) : alloc(_alloc), tree(rb_tree(_comp, alloc)) {}
 			template<class InputIt>
 			Set(InputIt first, InputIt last,const key_compare & comparator = key_compare(), const allocator_type & _alloc = allocator_type(),
-				typename enable_if<!std::numeric_limits<InputIt>::is_specialized>::type * = 0) : tree(first, last, comparator, _alloc) {}
-			Set(const Set & other) : tree(other.tree) {}
+				typename enable_if<!std::numeric_limits<InputIt>::is_specialized>::type * = 0) : alloc(_alloc), tree(first, last, comparator, alloc) {}
+			Set(const Set & other) : alloc(other.alloc), tree(other.tree) {}
 			~Set() {}
 			Set & operator=(const Set & other) {
 				if (this != &other) 
+					alloc = other.alloc;
 					tree = other.tree;
 				return *this;
 			}
@@ -83,11 +85,11 @@ namespace ft {
 			}
 			iterator lower_bound(const value_type & key) { return tree.lower_bound(key); }
 			const_iterator lower_bound(const value_type & key) const { return tree.lower_bound(key); }
-			iterator upper_bound(const value_type & key) { return tree.upper_bound(); }
-			const_iterator upper_bound(const value_type & key) const { return tree.upper_bound(); }
+			iterator upper_bound(const value_type & key) { return tree.upper_bound(key); }
+			const_iterator upper_bound(const value_type & key) const { return tree.upper_bound(key); }
 			ft::pair<iterator,iterator> equal_range(const value_type & key) { return tree.equal_range(key); }
 			ft::pair<const_iterator,const_iterator> equal_range(const value_type & key) const { return tree.equal_range(key); }
-			allocator_type get_allocator() const { return tree.get_allocator(); }
+			allocator_type get_allocator() const { return alloc; }
 	};
 	
 	template<class T, class Compare, class Alloc>

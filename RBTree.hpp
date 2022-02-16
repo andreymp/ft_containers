@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/08 13:10:49 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/15 19:42:38 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/16 17:39:04 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,8 @@
 # include <memory>
 # include <functional>
 # include "TreeIterator.hpp"
+# include "reverse_iterator.hpp"
 # include "utils.hpp"
-
-
-# include <iostream>
 
 namespace ft {
 	template <class Val, class Comp = std::less<Val>, class Alloc = std::allocator<Val> >
@@ -37,9 +35,9 @@ namespace ft {
 			typedef std::size_t																size_type;
 			typedef std::ptrdiff_t															difference_type;
 			typedef class ft::TreeIterator<Val>												iterator;
-			typedef class ft::ConstTreeIterator<Val>										const_iterator;
-			typedef class ft::ReverseTreeIterator<Val>										reverse_iterator;
-			typedef class ft::ConstReverseTreeIterator<Val>									const_reverse_iterator;
+			typedef const class ft::TreeIterator<Val>										const_iterator;
+			typedef ft::reverse_iterator<iterator>											reverse_iterator;
+			typedef ft::reverse_iterator<const_iterator>									const_reverse_iterator;
 		private:
 			allocator_type 	alloc_value;
 			node_allocator	alloc_node;
@@ -159,8 +157,8 @@ namespace ft {
 						tmp = noda->parent->right;
 						if (!tmp->isBlack) {
 							tmp->isBlack = true;
-							tmp->parent->isBlack = false;
-							rotateLeft(tmp->parent);
+							noda->parent->isBlack = false;
+							rotateLeft(noda->parent);
 							tmp = noda->parent->right;
 						}
 						if (tmp->left->isBlack && tmp->right->isBlack) {
@@ -183,8 +181,8 @@ namespace ft {
 						tmp = noda->parent->left;
 						if (!tmp->isBlack) {
 							tmp->isBlack = true;
-							tmp->parent->isBlack = false;
-							rotateRight(tmp->parent);
+							noda->parent->isBlack = false;
+							rotateRight(noda->parent);
 							tmp = noda->parent->left;
 						}
 						if (tmp->left->isBlack && tmp->right->isBlack) {
@@ -268,10 +266,10 @@ namespace ft {
 			void move(n_p to, n_p noda) {
 				if (to == root)
 					root = noda;
-				else if (to == to->parent->right)
-					to->parent->right = noda;
-				else 
+				else if (to == to->parent->left)
 					to->parent->left = noda;
+				else 
+					to->parent->right = noda;
 				noda->parent = to->parent;
 			}
 		public:
@@ -324,10 +322,10 @@ namespace ft {
 			const_iterator begin() const { return const_iterator(allocated ? const_iterator(minimum(root)) : head); }
 			iterator end() { return iterator(head); }
 			const_iterator end() const { return const_iterator(head); }
-			reverse_iterator rbegin() { reverse_iterator tmp(head); return ++tmp; }
-			const_reverse_iterator rbegin() const { const_reverse_iterator tmp(head); return ++tmp; }
-			reverse_iterator rend() { n_p tmp(allocated ? minimum(root) : head); return reverse_iterator(--tmp); }
-			const_reverse_iterator rend() const { n_p tmp(allocated ? minimum(root) : head); return const_reverse_iterator(--tmp); }
+			reverse_iterator rbegin() { return reverse_iterator(end()); }
+			const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
+			reverse_iterator rend() { return reverse_iterator(begin()); }
+			const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
 			bool empty() const { return !allocated; }
 			size_type size() const { return allocated; }
 			size_type max_size() const { return std::numeric_limits<size_type>::max() / sizeof(size_type); }
@@ -431,18 +429,14 @@ namespace ft {
 			}
 			size_type erase(const_reference value) {
 				size_type i = 0;
-				while (true) {
-					iterator it = find(value);
-					if (it == end())
-						break ;
-					i++;
-					erase(it);
-				}
-				return i;
+				n_p noda = findRecursive(value, root);
+				if (noda)
+					erase(iterator(noda));
+				return noda != nullptr;
 			}
 			void erase(iterator first, iterator last) {
-				for (; first != last; ++first)
-					erase(first);
+				while (first != last)
+					erase(first++);
 			}
 			value_compare value_comp() const { return comp; }
 			iterator find(const_reference value) {
@@ -482,7 +476,6 @@ namespace ft {
 				return end();
 			}
 			ft::pair<iterator,iterator> equal_range(const value_type & key) { return ft::make_pair(lower_bound(key), upper_bound(key)); }
-			//ft::pair<const_iterator,const_iterator> equal_range(const value_type & key) const { return ft::pair<const_iterator, const_iterator>(lower_bound(key), upper_bound(key)); }
 			allocator_type get_allocator() const { return alloc_value; }
 	};
 }

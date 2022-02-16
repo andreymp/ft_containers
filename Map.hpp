@@ -6,7 +6,7 @@
 /*   By: jobject <jobject@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/10 21:09:40 by jobject           #+#    #+#             */
-/*   Updated: 2022/02/15 19:20:52 by jobject          ###   ########.fr       */
+/*   Updated: 2022/02/16 17:39:47 by jobject          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ namespace ft {
 		public:
 			typedef K															key_type;
 			typedef Val															mapped_type;
-			typedef ft::pair<const key_type, Val>								value_type;
+			typedef pair<const key_type, Val>									value_type;
 			typedef Compare														key_compare;
 			typedef Alloc														allocator_type;
 			typedef value_type &												reference;
@@ -86,7 +86,7 @@ namespace ft {
 			bool empty() const { return tree.empty(); }
 			size_type size() const { return tree.size(); }
 			size_type max_size() const { return tree.max_size(); }
-			mapped_type & operator[](const key_type & key) { insert(ft::make_pair(key, mapped_type())).first->second; }
+			mapped_type & operator[](const key_type & key) { return (*((this->insert(ft::make_pair(key, mapped_type()))).first)).second; }
 			pair<iterator,bool> insert(const value_type & val) { return tree.insert(val); }
 			iterator insert (iterator pos, const value_type & val) { return tree.insert(pos, val); }
 			template<class InputIt>
